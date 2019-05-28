@@ -1,0 +1,90 @@
+/*样式初始化 begin*/
+html,body{
+	margin: 0;/*外边距*/ /*骂外人*/
+	padding: 0;/*内边距*/ /*怕内人*/
+	width: 100%;
+	height: 100%; /*TODO*/
+	
+	
+}
+
+.content{
+	width: 100%;
+	height: 100%;
+}
+
+input{
+	border: none;
+	outline: none;
+	padding: 0;
+}
+input::-webkit-input-placeholder, textarea::-webkit-input-placeholder {
+  color: #ddd;
+  font-size: 13px;
+}
+
+input:-moz-placeholder, textarea:-moz-placeholder {
+  color: #ddd;
+  font-size: 13px;
+}
+
+input::-moz-placeholder, textarea::-moz-placeholder {
+  color: #ddd;
+  font-size: 13px;
+}
+
+input:-ms-input-placeholder, textarea:-ms-input-placeholder {
+  color: #ddd;
+  font-size: 13px;
+}
+
+.nav-top{
+	height: 40px;
+	background-color: #314a6b;
+	padding-top: calc((40px - 25px)/2);
+	box-sizing: border-box;/*把内边距，或者边框的宽度值，计算到宽高里面*/
+	position: relative;/*给父级盒子 加了相对定位*/
+}
+
+
+.ipt{
+	width: 17%;
+    height: 25px;
+    display: block;
+    margin: 0 75%;
+    border-radius: calc(8px / 2);
+    padding: 0 15px;
+    box-sizing: border-box;
+    background-color: #c7b7b8;
+    color: #fff;
+}
+.but{
+	width: 10%;
+    height: 25px;
+	padding: 0;
+    display: block;
+    margin: 0 80%;
+    border-radius: calc(8px / 2);
+    padding: 0 15px;
+	background-color: #716b6c;
+    color: #b9b9b9;
+  	font-size: 13px;
+}
+
+
+#map{
+	width: 100%;
+	height:100%;
+	margin: 0 auto;
+}
+
+#model{
+    display:none;
+    background-color: goldenrod;
+    width: 180px;
+    height: 30px;
+}
+#model-title{
+    display:block;
+}
+

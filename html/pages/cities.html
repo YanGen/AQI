@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>实时监控</title>
+	<link rel="shortcut icon" href="/images/tree.ico" type="image/x-icon" /> 
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="/css/common.css">
+	<link rel="stylesheet" type="text/css" href="/css/jquery-ui.css">
+	<link rel="stylesheet" href="/css/bootstrap.css"> <!-- Bootstrap-Core-CSS -->
+	<link rel="stylesheet" href="/css/style1.css" type="text/css" media="all" /> <!-- Style-CSS --> 
+	<link rel="stylesheet" href="/css/fontawesome-all.css"> <!-- Font-Awesome-Icons-CSS -->
+	<!-- //css files -->
+	<!--web font-->
+	  <link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900" rel="stylesheet">
+
+	<script type="text/javascript" src="/js/echarts.js"></script>
+	<script src="/js/config.js" type="text/javascript"></script>
+	<script src="/js/axios.min.js"></script>
+	<script src="/js/common.js"></script>
+
+	<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+	<script src="/js/layer.js"></script>
+	 
+	 <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+  <link rel="stylesheet" href="http://jqueryui.com/resources/demos/style.css">
+
+	<script src="/js/jquery.autocomplete.js"></script>
+	<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+	<script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+
+	<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-gl/echarts-gl.min.js"></script>
+   <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-stat/ecStat.min.js"></script>
+   <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/dataTool.min.js"></script>
+   <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/china.js"></script>
+   <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/world.js"></script>
+   <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=TZBOxnMwwya7srplPr8Oqk3qgQaREf7Z"></script>
+   <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/bmap.min.js"></script>
+   <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/simplex.js"></script>
+   <script src="/js/loading.js"></script>
+  <link rel="stylesheet" type="text/css" href="/css/loading.css" media="all"/>
+	
+	 <script type="text/javascript">
+	var convertData = function (data) {
+	    var res = [];
+	    for (var i = 0; i < data.length; i++) {
+	        var geoCoord = geoCoordMap[data[i].name];
+	        if (geoCoord) {
+	            res.push({
+	                name: data[i].name,
+	                value: geoCoord.concat(data[i].value),
+	                updateTime:data[i].updateTime,
+	                aqi:data[i].aqi,
+	                cityId:data[i].cityId,
+	            });
+	        }
+	    }
+	    return res;
+	};
+
+	function renderItem(params, api) {
+	    var coords = [
+	        [116.7,39.53],
+	        [103.73,36.03],
+	        [112.91,27.87],
+	        [120.65,28.01],
+	        [119.57,39.95]
+	    ];
+	    var points = [];
+	    for (var i = 0; i < coords.length; i++) {
+	        points.push(api.coord(coords[i]));
+	    }
+	    var color = api.visual('color');
+
+	    return {
+	        type: 'polygon',
+	        shape: {
+	            points: echarts.graphic.clipPointsByRect(points, {
+	                x: params.coordSys.x,
+	                y: params.coordSys.y,
+	                width: params.coordSys.width,
+	                height: params.coordSys.height
+	            })
+	        },
+	        style: api.style({
+	            fill: color,
+	            stroke: echarts.color.lift(color)
+	        })
+	    };
+	}
+
+	
+
+	$(document).ready(function (){
+
+	 	var host = config.devPro.host;
+	 	var port = config.devPro.port;
+
+		// 基于准备好的dom，初始化echarts实例
+
+
+	 	window.onload = function(){
+	    var vm = new Vue({
+	        el:'#content',
+	        data:{
+
+	            cities:null,
+	            geoCoordMap:{},
+	            text:null,
+	            drawData:[],
+	            respanseData:null,
+	            show:"AQI",
+	            nowClickPoint:"null",
+	            cityId:"null",
+	        	cityName:"null",
+	        },
+	        created: function () {
+
+	        	axios({
+					url:'http://'+config.devPro.urlPre+'city/all',
+					method: 'post',
+					headers:{
+						'Content-Type':'application/json'
+					}
+					
+				})
+				.then(respanse=>{
+					if (respanse.data.success) {
+						this.cities = respanse.data.data;
+						drawData = []
+						var show = this.show;
+						geoCoordMap = {}
+						$.each(respanse.data.data,function(idx,item){
+							drawDataItem = {}
+							itemCity = item.city;
+							geoCoordMap[itemCity] = eval("("+item.location+")");
+							if(show == "AQI"){
+								var curAQI = eval("("+item.curAQI+")");
+								if(curAQI !=null){
+									if(curAQI.success == "1"){
+										drawDataItem['name'] = itemCity;
+										drawDataItem["value"] = curAQI.result.aqi;
+										drawDataItem["updateTime"] = item.updateTime;
+										drawDataItem["aqi"] = curAQI.result.aqi;
+										drawDataItem["cityId"] = item.id;
+										drawData.push(drawDataItem);
+									}
+								}
+							}
+
+						});
+						this.geoCoordMap = geoCoordMap;
+						this.drawData = drawData;
+
+					}
+					
+				})
+	              .catch(function (error) {
+	                console.log(error);
+	              });
+
+	        	
+       		},
+
+	        methods:{
+	            showSearch:function(){
+	            	layer.open({
+				      type: 2,
+				      title: '搜索城市',
+				      anim: 1,
+				      maxmin: true,
+				      shadeClose: true, //点击遮罩关闭层
+				      area : ['800px' , '520px'],
+				      btn: ['关闭'],
+				      content: '/pages/search.html',
+
+				      
+				    });
+	            },
+	        },
+
+	        watch: {
+	        	// 监听地图点击
+	        	nowClickPoint:function(newVal,oldVal){
+	        		
+        			layer.open({
+				      type: 2,
+				      title: '过去60天天气情况',
+				      maxmin: true,
+				      shadeClose: true, //点击遮罩关闭层
+				      area : ['800px' , '520px'],
+				      content: '/pages/weather/unitHour.html?id='+this.cityId+'&city='+this.cityName+'&backward=60',
+				      btn: ['关闭',"查看历史AQI","查看历史Weather",],
+				      btn2:function(index, layero){
+	                    window.location.href='/pages/aqi/unitDay.html?id='+vm.cityId+'&city='+vm.cityName;
+	                	},
+		                btn3:function(index, layero){
+		                    window.location.href='/pages/weather/unitDay.html?id='+vm.cityId+'&city='+vm.cityName;
+		                },
+				    });
+	        		
+	        	},
+
+
+	            // 监听数据是否加载完成或改变
+	        	drawData:function(newVal,oldVal){
+	        		if (newVal.length!=0 && newVal.toString()!=oldVal.toString()){
+	        			var data = this.drawData;
+	        			var show = this.show;
+	        			var cityName = this.cityName;
+	        			var geoCoordMap = this.geoCoordMap;
+						var myChart = echarts.init(document.getElementById('echartContainer'));
+
+						myChart.on('click', function (params) {
+
+							console.log(params);
+
+						    vm.nowClickPoint = params['data'].cityId;
+						    vm.cityId = params['data'].cityId;
+						    vm.cityName = params.name;
+						    layer.tips('上一步：'+params.name, this);
+						});
+
+						// 绘制图表
+						myChart.setOption({
+							title: {
+					        text: 'PM25实时监控',
+					        subtext: 'data from PM25.in',
+					        sublink: 'http://www.pm25.in',
+					        left: 'center'
+					    },
+					    
+					    tooltip : {
+					        trigger: 'item',
+					        // format重写显示内容
+					        formatter:function (params) {
+			                    var res = '';
+			                    res+=params['data'].name+'</br>';
+			                    res+='pm2.5 : '+params.data.aqi+'</br>';            
+			                    res+='数据更新于 : '+params['data'].updateTime+'</br>';    
+			                    res+='位置坐标 : '+params['data'].value+'</br>'; 
+			                    res+= ' ☜ 点击查看'; 
+			                    return res;
+			                }
+					    },
+					    bmap: {
+					        center: [104.114129, 37.550339],
+					        zoom: 5,
+					        roam: true,
+					        mapStyle: {
+					            styleJson: [{
+					                'featureType': 'water',
+					                'elementType': 'all',
+					                'stylers': {
+					                    'color': '#d1d1d1'
+					                }
+					            }, {
+					                'featureType': 'land',
+					                'elementType': 'all',
+					                'stylers': {
+					                    'color': '#f3f3f3'
+					                }
+					            }, {
+					                'featureType': 'railway',
+					                'elementType': 'all',
+					                'stylers': {
+					                    'visibility': 'off'
+					                }
+					            }, {
+					                'featureType': 'highway',
+					                'elementType': 'all',
+					                'stylers': {
+					                    'color': '#fdfdfd'
+					                }
+					            }, {
+					                'featureType': 'highway',
+					                'elementType': 'labels',
+					                'stylers': {
+					                    'visibility': 'off'
+					                }
+					            }, {
+					                'featureType': 'arterial',
+					                'elementType': 'geometry',
+					                'stylers': {
+					                    'color': '#fefefe'
+					                }
+					            }, {
+					                'featureType': 'arterial',
+					                'elementType': 'geometry.fill',
+					                'stylers': {
+					                    'color': '#fefefe'
+					                }
+					            }, {
+					                'featureType': 'poi',
+					                'elementType': 'all',
+					                'stylers': {
+					                    'visibility': 'off'
+					                }
+					            }, {
+					                'featureType': 'green',
+					                'elementType': 'all',
+					                'stylers': {
+					                    'visibility': 'off'
+					                }
+					            }, {
+					                'featureType': 'subway',
+					                'elementType': 'all',
+					                'stylers': {
+					                    'visibility': 'off'
+					                }
+					            }, {
+					                'featureType': 'manmade',
+					                'elementType': 'all',
+					                'stylers': {
+					                    'color': '#d1d1d1'
+					                }
+					            }, {
+					                'featureType': 'local',
+					                'elementType': 'all',
+					                'stylers': {
+					                    'color': '#d1d1d1'
+					                }
+					            }, {
+					                'featureType': 'arterial',
+					                'elementType': 'labels',
+					                'stylers': {
+					                    'visibility': 'off'
+					                }
+					            }, {
+					                'featureType': 'boundary',
+					                'elementType': 'all',
+					                'stylers': {
+					                    'color': '#fefefe'
+					                }
+					            }, {
+					                'featureType': 'building',
+					                'elementType': 'all',
+					                'stylers': {
+					                    'color': '#d1d1d1'
+					                }
+					            }, {
+					                'featureType': 'label',
+					                'elementType': 'labels.text.fill',
+					                'stylers': {
+					                    'color': '#999999'
+					                }
+					            }]
+					        }
+					    },
+					    series : [
+					        {
+					            name: 'pm2.5',
+					            type: 'scatter',
+					            coordinateSystem: 'bmap',
+					            data: convertData(data),
+					            symbolSize: function (val) {
+					                return val[2] / 10;
+					            },
+					            label: {
+					                normal: {
+					                    formatter: '{b}',
+					                    position: 'right',
+					                    show: false
+					                },
+					                emphasis: {
+					                    show: true
+					                }
+					            },
+					            itemStyle: {
+					                normal: {
+					                    color: 'purple'
+					                }
+					            }
+					        },
+					        {
+					            name: 'Top 5',
+					            type: 'effectScatter',
+					            coordinateSystem: 'bmap',
+					            data: convertData(data.sort(function (a, b) {
+					                return b.value - a.value;
+					            }).slice(0, 6)),
+					            symbolSize: function (val) {
+					                return val[2] / 10;
+					            },
+					            showEffectOn: 'render',
+					            rippleEffect: {
+					                brushType: 'stroke'
+					            },
+					            hoverAnimation: true,
+					            label: {
+					                normal: {
+					                    formatter: '{b}',
+					                    position: 'right',
+					                    show: true
+					                }
+					            },
+					            itemStyle: {
+					                normal: {
+					                    color: 'purple',
+					                    shadowBlur: 10,
+					                    shadowColor: '#333'
+					                }
+					            },
+					            zlevel: 1
+					        }
+					    ]
+						});
+	        		}
+	        	},
+
+	        }
+	    });
+	}
+	});
+
+	 
+            
+
+	 </script>
+	
+
+</head>
+<body style="overflow-x: hidden; 
+  overflow-y: hidden;">
+  <div id="loading" class="lds-css ng-scope" style="width:100%;height:100%;"><div style="width:100%;height:100%;left:48%;top:40%;" class="lds-cube"><div></div><div></div><div></div><div></div></div></div>
+
+	<header>	
+	<nav class="mnu">
+		<div class="container">
+            <div class="logo" id="logo">
+                <h1><a href="index.html">全国主要城市空气质量</a></h1>
+            </div>
+				<label for="drop" class="toggle"><span class="fa fa-bars"></span></label>
+                <input type="checkbox" id="drop">
+                    <ul class="menu mt-1">
+                        <li class="mr-lg-4 mr-3"><a href="/index.html">首页</a></li>
+						<li class="mr-lg-4 mr-3 active"><a href="/pages/cities.html" class="scroll">实时监控</a></li>
+                        <li class="mr-lg-4 mr-3"><a href="/pages/history.html" class="scroll">历史分析</a></li>
+						<li class="mr-lg-4 mr-3"><a href="/pages/future.html" class="scroll">未来预测</a></li>
+                        <li class="mr-lg-4 mr-3"><a href="/pages/rank.html" class="scroll">污染排行</a></li>
+                        <li class="mr-lg-4 mr-3"><a href="/pages/solution.html" class="scroll">解题</a></li>
+                    </ul>
+			</div>
+	    </nav>
+	</header>
+
+	<div id="content">
+
+		<!-- 头部导航条 begin -->
+		<!-- <div id="block">
+			<div class="tab">
+				<button class="but" v-on:click="showSearch">点击搜索城市</button>
+			</div>
+		</div> -->
+		
+
+		<div id="map">
+
+			<!-- 地图 -->
+			<div id="echartContainer" style="width:100%; height: 1000px;"></div>
+			<div id="model">
+				<span id="model-title"></span>
+			</div>
+		</div>
+
+	</div>
+
+</body>
+<script type="text/javascript">
+            
+</script>
+</html>

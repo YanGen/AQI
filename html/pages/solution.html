@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>解题</title>
+	<link rel="shortcut icon" href="/images/tree.ico" type="image/x-icon" /> 
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="/css/common.css">
+	<link rel="stylesheet" type="text/css" href="/css/history.css">
+	<link rel="stylesheet" type="text/css" href="/css/jquery-ui.css">
+	<link rel="stylesheet" href="/css/bootstrap.css"> <!-- Bootstrap-Core-CSS -->
+	<link rel="stylesheet" href="/css/style1.css" type="text/css" media="all" /> <!-- Style-CSS --> 
+	<link rel="stylesheet" href="/css/fontawesome-all.css"> <!-- Font-Awesome-Icons-CSS -->
+
+	<script type="text/javascript" src="/js/echarts.js"></script>
+	<script src="/js/config.js" type="text/javascript"></script>
+	<script src="/js/axios.min.js"></script>
+	<script src="/js/common.js"></script>
+
+	<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+	 
+
+	<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+	<script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+   <script src="/js/loading.js"></script>
+  <link rel="stylesheet" type="text/css" href="/css/loading.css" media="all"/>
+    <script type="text/javascript">
+	
+	$(document).ready(function (){
+
+		
+
+	 	var host = config.devPro.host;
+	 	var port = config.devPro.port;
+
+		// 基于准备好的dom，初始化echarts实例
+
+
+	 	window.onload = function(){
+	    var vm = new Vue({
+	        el:'#content',
+	        data:{
+	        	cityId:"370",
+	        	city:"广州",
+	        	province:"广东省",
+	        	address:getUrlParam("address"),
+	        	urlCheck:null,
+	        	ip:returnCitySN["cip"],
+	        	ak:'TZBOxnMwwya7srplPr8Oqk3qgQaREf7Z',
+	        	temp:null,
+	        	pm2_5:null,
+	        	warn:null,
+	        	shidu:null,
+	        	jiangyu:null,
+	        	chuxing:null,
+	        	fengsu:null,
+	        	quality:null,
+	        	notice:null,
+	        	aqi:null,
+	        	updateTime:null,
+	        	curAQI:null,
+	        	location:null,
+	        	historyAQIDayBoundCity:null,
+	        	compareAQIMonthBoundCity:null,
+	        	historyAQIMonthBoundCity:null,
+	        	futureAQIMonthBoundCity:null,
+	        },
+	        created: function () {
+	        	
+	        	
+       		},
+
+	        methods:{
+	            showSearch:function(){
+	            	
+	            },
+	        },
+
+	        watch: {
+	        	// 监听地图点击
+	            
+	        }
+	    });
+	}
+
+	})
+
+ 	
+
+	</script>
+
+</head>
+<body class="aqis_live_data" style="
+  background: url(/images/banner3.jpg) no-repeat 0 0;background-size: 100%">
+  <div id="loading" class="lds-css ng-scope" style="width:100%;height:100%;"><div style="width:100%;height:100%;left:48%;top:40%;" class="lds-cube"><div></div><div></div><div></div><div></div></div></div>
+
+	<header>	
+	<nav class="mnu">
+		<div class="container">
+            <div class="logo" id="logo">
+                <h1><a href="index.html">全国主要城市空气质量</a></h1>
+            </div>
+				<label for="drop" class="toggle"><span class="fa fa-bars"></span></label>
+                <input type="checkbox" id="drop">
+                    <ul class="menu mt-1">
+                        <li class="mr-lg-4 mr-3"><a href="/index.html">首页</a></li>
+						<li class="mr-lg-4 mr-3"><a href="/pages/cities.html" class="scroll">实时监控</a></li>
+                        <li class="mr-lg-4 mr-3"><a href="/pages/history.html" class="scroll">历史分析</a></li>
+						<li class="mr-lg-4 mr-3"><a href="/pages/future.html" class="scroll">未来预测</a></li>
+                        <li class="mr-lg-4 mr-3"><a href="/pages/rank.html" class="scroll">污染排行</a></li>
+                        <li class="mr-lg-4 mr-3 active"><a href="/pages/solution.html" class="scroll">解题</a></li>
+                    </ul>
+			</div>
+	    </nav>
+	</header>
+	<div id="content">
+		
+
+		
+
+		<div style="height: 90px">
+			
+		</div>
+		<div class="content">
+			<div class="left large">
+				<dl class="font_dl">
+					<dd>
+						<a href="javascript:;" class="font_s B_font" title="减小字号"></a></dd><dd><a href="javascript:;" class="font_l B_font disable" title="增大字号">
+							
+						</a>
+					</dd>
+				</dl>
+			<div class="article" style="margin: 10% 10%">
+				<h1 class="title">概述</h1>
+				<div class="part">
+					<p class="p1" style="text-align: center;">
+					</p><p class="p1" style="text-align: center;"></p><p class="p1"><br></p><p class="p1">　   自然提供给我们食物、干净的饮用水和空气、吸收人类活动产生的二氧化碳、保持水土以维护我们家园的安全；同时，神秘莫测的自然景色又给了我们享受和探索的空间，无数的文人墨客感慨于自然的壮丽，留下了宝贵的文学著作。目前，随着人口数量的不断增长以及对自然资源需求的不断增加，自然的价值正在日益凸显。无论现在还是未来，人类仍需依赖大自然来满足自身的多种需求。<br></p><p class="p1"><span class="s1">　　</span></p><p class="p1"><span class="s1">　　大数据时代的来临，使传统意义上的数据形态发生了变化。对人们的思维方式和管理模式都产生了影响和冲击，深刻影响着人们的生活，让我们的生活近一步便捷。将大数据技术应用在治理环境问题上，为我们提供了一条崭新的途径。例如对环境的监测与预警都能起到积极作用，通过不同资源的整合，协调不同的力量，达到治理环境的效果。</span>
+					</p>
+				</div>
+			</div>
+			<div class="article" style="margin: 0 10%">
+
+
+				<h1 class="subtitle">空气污染普及</h1>
+				<div class="part">
+					<p class="p1" style="text-align: center;"><span class="s1"><img src="/images/指标.jpg" style="width: 50%" title="空气质量指标.jpg"><br></span></p><p class="p1" style="text-align: center;"><span class="s1">空气质量6大指标</span></p><p class="p1"><span class="s1"><br></span></p><p class="p1"><span class="s1">　　空气中某些组分的含量超过了正常含量，或者空气中进入了正常情况下不存在的成分或有毒有害物质，从而影响人的健康和生物的生长发育，或对各种物质以及对天气和气候产生不良影响时，这样的空气状态称为空气污染。</span><br>
+					</p>
+				</div>
+				<br>
+				<div class="clear"></div>
+
+				<h1 class="subtitle">在本站你可以做的</h1>
+				<div class="part">
+					<br>
+					<p class="p1">
+						<span class="s1">
+							<strong>　　预警 —— 结合历史与未来的预测图对比分析</strong>
+						</span>
+					</p>
+
+					<p class="p1" style="text-align: center;"><span class="s1"><img src="/images/保定对比.png" title="保定对比.png" style="width: 50%"><br></span></p><p class="p1" style="text-align: center;"><span class="s1">保定历史与未来走势对比</span></p><p class="p1"><span class="s1"><br></span></p>
+
+					<p class="p1"><span class="s1">　　在全国74 个以新的空气环境质量标准评价的城市里，和石家庄成为难兄难弟的河北城市还有邢台、唐山、保定、衡水、邯郸、廊坊，这几个城市在第一季度一起位居最重污染城市前十名，让整个河北深受震动。虽说近况如此，但由上图可见，保定的近五年污染情况还是持续走低的。　在看到当前污染严重的一些城市外，着眼未来的各个城市的发展境况，更有利于我们针对性的预防空气污染，我们可以在环境监测的基础上为空气质量以及环境的应急提出预警。</span>
+					</p>
+
+					<br>
+
+					<p class="p1"><span class="s1">
+						<strong>　　污染增长率 —— 逐月对比分析</strong></span>
+					</p>
+
+					<p class="p1" style="text-align: center;"><span class="s1"><img src="/images/污染增长率.png" title="污染增长率.png" style="width: 50%"><br></span></p><p class="p1" style="text-align: center;"><span class="s1">污染增长率</span></p><p class="p1"><span class="s1"><br></span></p>
+
+
+					<p class="p1"><span class="s1">
+						<strong>　　监控 —— 一眼全国当前空气情况</strong></span>
+					</p>
+
+					<p class="p1" style="text-align: center;"><span class="s1"><img src="/images/实时监控.png" title="实时监控.png" style="width: 50%"><br></span></p><p class="p1" style="text-align: center;"><span class="s1">实时监控</span></p><p class="p1"><span class="s1"><br></span></p>
+
+					<p class="p1"><span class="s1">
+						<strong>　　定位 —— 环境健康评价</strong></span>
+					</p>
+
+					<p class="p1" style="text-align: center;"><span class="s1"><img src="/images/定位监控.png" title="定位监控.png" style="width: 50%"><br></span></p><p class="p1" style="text-align: center;"><span class="s1">定位监控</span></p><p class="p1"><span class="s1"><br></span></p>
+
+					<p class="p1" style="text-align: center;"><span class="s1"><img src="/images/定位监控2.png" title="定位监控2.png" style="width: 50%"><br></span></p><p class="p1" style="text-align: center;"><span class="s1">定位监控</span></p><p class="p1"><span class="s1"><br></span></p>
+
+					
+				</div>
+
+
+				<h1 class="subtitle">最后</h1>
+				<br>
+				<div class="part">
+					<p class="p1"><span class="s1">　　洁净的空气对生命非常重要。被污染的空气损害人体健康，影响动植物的正常生长，破坏生态平衡；臭氧层破坏、温室效应加剧、可吸入颗粒物过多和酸雨等都有空气污染有关。</span></p><p class="p1"><span class="s1">　   保护空气要控制污染源，加强空气质量监测和预报，发展“绿色工业”，使用清洁能源，植树造林，绿化环境。</span>
+					</p>
+				</div>
+
+			</div>
+		<div style="height: 90px">
+			
+		</div>
+	</div>
+	
+
+</body>
+</html>

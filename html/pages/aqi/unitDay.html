@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>空气质量 unit day</title>
+	<link rel="shortcut icon" href="/images/tree.ico" type="image/x-icon" /> 
+	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="/css/bootstrap.css">
+	<script src="/js/config.js" type="text/javascript"></script>
+	<script src="/js/axios.min.js"></script>
+	<script src="/js/common.js"></script>
+	<script src="/js/echarts.js"></script>
+	<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+	<script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+	<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+	<script src="https://cdn.bootcss.com/echarts/3.7.1/echarts.min.js"></script>
+	<script type="text/javascript">
+	$(document).ready(function (){
+
+
+	 	var host = config.devPro.host;
+	 	var port = config.devPro.port;
+	 	window.onload = function(){
+	    var vm = new Vue({
+	        el:'#app',
+	        data:{
+	            dayBoundCity:{
+	            	cityId:parseInt(getUrlParam("id")),
+	            	cityName:getUrlParam("city"),
+	            	unit:'day',
+	            	bound:'city',
+	            	
+	            },
+	            cityName:getUrlParam("city"),
+	            show:'AQI',
+	            text:null,
+	            drawData:[],
+	            respanseData:null,
+	        },
+	        created: function () {
+
+	        	axios({
+					url:'http://'+config.devPro.urlPre+'aqi/aqiData',
+					method: 'post',
+					data: this.dayBoundCity,
+					headers:{
+						'Content-Type':'application/json'
+					}
+					
+				})
+				.then(respanse=>{
+					if (respanse.data.success) {
+						this.respanseData = respanse.data.data;
+						drawData = []
+						var show = this.show;
+						$.each(respanse.data.data,function(idx,item){ 
+							var dayData = eval("("+item.data+")");
+							$.each(dayData,function(idx,dayItem){
+								if (show== 'AQI') {
+									drawItem = [dayItem.time,dayItem.aqi];
+									drawData.push(drawItem);	
+								}
+							});
+						});	
+						this.drawData = drawData;
+
+					}
+					
+				})
+              .catch(function (error) {
+                console.log(error);
+              });
+       		},
+	        methods:{
+	            changeShow:function(show){
+	                this.show = show;
+	            }
+	        },
+
+	        watch: {
+	        	// 监听展示的项是否改变
+	        	show:function(newVal,oldVal){
+	        		if (newVal != oldVal) {
+	        			drawData = []
+						var show = this.show;
+						$.each(this.respanseData,function(idx,item){ 
+							var dayData = eval("("+item.data+")");
+							$.each(dayData,function(idx,dayItem){
+								if (show== 'AQI') {
+									drawItem = [dayItem.time,dayItem.aqi];
+									drawData.push(drawItem);	
+								}else if(show == "pm2_5"){
+									drawItem = [dayItem.time,dayItem.pm2_5];
+									drawData.push(drawItem);	
+								}else if(show == "pm10"){
+									drawItem = [dayItem.time,dayItem.pm10];
+									drawData.push(drawItem);	
+								}else if(show == "so2"){
+									drawItem = [dayItem.time,dayItem.so2];
+									drawData.push(drawItem);	
+								}else if(show == "no2"){
+									drawItem = [dayItem.time,dayItem.no2];
+									drawData.push(drawItem);	
+								}else if(show == "co"){
+									drawItem = [dayItem.time,dayItem.co];
+									drawData.push(drawItem);	
+								}else if(show == "o3"){
+									drawItem = [dayItem.time,dayItem.o3];
+									drawData.push(drawItem);	
+								}
+							});
+						});	
+						this.drawData = drawData;
+	        		}
+	        	},
+	        	// 监听数据是否加载完成或改变
+	        	drawData:function(newVal,oldVal){
+	        		if (newVal.length!=0 && newVal.toString()!=oldVal.toString()){
+	        			var data = this.drawData;
+	        			var show = this.show;
+	        			var cityName = this.cityName;
+						// 基于准备好的dom，初始化echarts实例
+						var myChart = echarts.init(document.getElementById('echartContainer'));
+						// 绘制图表
+						myChart.setOption({
+						    title: {
+				            text: cityName+' 历史(逐日) '+show
+				        },
+				        tooltip: {
+				            trigger: 'axis'
+				        },
+				        xAxis: {
+				            data: data.map(function (item) {
+				                return item[0];
+				            }),
+				            
+				        },
+				        yAxis: {
+				            splitLine: {
+				                show: false
+				            }
+				        },
+				        toolbox: {
+				            left: 'center',
+				            feature: {
+				                dataZoom: {
+				                    yAxisIndex: 'none'
+				                },
+				                restore: {},
+				                saveAsImage: {}
+				            }
+				        },
+				        dataZoom: [{
+				            startValue: data[0][0]
+				        }, {
+				            type: 'inside'
+				        }],
+				        visualMap: {
+				            top: 10,
+				            right: 10,
+				            pieces: [{
+				                gt: 0,
+				                lte: 50,
+				                color: '#096'
+				            }, {
+				                gt: 50,
+				                lte: 100,
+				                color: '#ffde33'
+				            }, {
+				                gt: 100,
+				                lte: 150,
+				                color: '#ff9933'
+				            }, {
+				                gt: 150,
+				                lte: 200,
+				                color: '#cc0033'
+				            }, {
+				                gt: 200,
+				                lte: 300,
+				                color: '#660099'
+				            }, {
+				                gt: 300,
+				                color: '#7e0023'
+				            }],
+				            outOfRange: {
+				                color: '#999'
+				            }
+				        },
+				        series: {
+				            name: cityName+' '+show,
+				            type: 'line',
+				            data: data.map(function (item) {
+				                return item[1];
+				            }),
+				            markLine: {
+				                silent: true,
+				                data: [{
+				                    yAxis: 50
+				                }, {
+				                    yAxis: 100
+				                }, {
+				                    yAxis: 150
+				                }, {
+				                    yAxis: 200
+				                }, {
+				                    yAxis: 300
+				                }]
+				            }
+				        }
+						});
+	        		}
+	        	},
+			},
+
+	    });
+	}
+	});
+
+	
+
+	 </script>
+
+</head>
+<body style="overflow-x: hidden; overflow-y: hidden; text-align:center;">
+
+	
+
+	<div id="app" style="">
+		<button id="aqi" class="btn btn-default btn-sm" v-on:click="changeShow('AQI')">AQI</button>
+		<button id="aqi" class="btn btn-default btn-sm" v-on:click="changeShow('pm2_5')">pm2.5</button>
+		<button id="aqi" class="btn btn-default btn-sm" v-on:click="changeShow('pm10')">pm10</button>
+		<button id="aqi" class="btn btn-default btn-sm" v-on:click="changeShow('so2')">so2</button>
+		<button id="aqi" class="btn btn-default btn-sm" v-on:click="changeShow('no2')">no2</button>
+		<button id="aqi" class="btn btn-default btn-sm" v-on:click="changeShow('co')">co</button>
+		<button id="aqi" class="btn btn-default btn-sm" v-on:click="changeShow('o3')">o3</button>
+
+		<hr>
+		<div style="margin: 0 20%;">
+			<div id="echartContainer" style="width:1000px; height:500px;"></div>
+			
+		</div>
+		
+	</div>
+
+
+
+</body>
+</html>

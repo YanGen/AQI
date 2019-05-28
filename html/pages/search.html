@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>搜索城市</title>
+	<link rel="shortcut icon" href="/images/tree.ico" type="image/x-icon" /> 
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="/css/jquery-ui.css">
+
+	<script type="text/javascript" src="/js/echarts.js"></script>
+	<script src="/js/config.js" type="text/javascript"></script>
+	<script src="/js/axios.min.js"></script>
+	<script src="/js/common.js"></script>
+
+	<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+	<script src="/js/layer.js"></script>
+	 
+	<script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+	<link rel="stylesheet" href="http://jqueryui.com/resources/demos/style.css">
+
+	<script src="/js/jquery.autocomplete.js"></script>
+
+	<link href="/css/font.css" rel="stylesheet">
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/style-search.css" media="screen" type="text/css" />
+
+	<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+	<script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+
+
+	<script type="text/javascript">
+		$(document).ready(function (){
+
+	 	var host = config.devPro.host;
+	 	var port = config.devPro.port;
+
+		// 基于准备好的dom，初始化echarts实例
+
+
+	 	window.onload = function(){
+	    var vm = new Vue({
+	        el:'#input',
+	        data:{
+	            keyword:"",
+	            availableTags:[],
+	            cities:[],
+	            city:null,
+	            cityId:null,
+	            searchClick:false,
+	        },
+	        created: function () {
+	        	availableTags = []
+		     	axios({
+					url:'http://'+config.devPro.urlPre+'city/all',
+					method: 'post',
+					headers:{
+						'Content-Type':'application/json'
+					}
+					
+				})
+				.then(respanse=>{
+					
+					if (respanse.data.success) {
+						this.cities = respanse.data.data,
+						$.each(respanse.data.data,function(idx,item){
+							dataDict = {"value":item.city,"label":item.city};
+				        	availableTags.push(dataDict);
+				        	dataDict = {"value":item.city,"label":item.cityEng};
+				        	availableTags.push(dataDict)
+				        });
+					}
+					
+				})
+                .catch(function (error) {
+                	console.log(error);
+                });
+
+	   			this.availableTags = availableTags;
+	        	
+       		},
+
+	        methods:{
+	            
+	        },
+
+	        watch: {
+
+	        	searchClick:function(){
+	        		if (this.searchClick == true) {
+	        			this.searchClick = false;
+		            	if( this.keyword != ""){
+
+		            		$.each(this.cities,function(idx,item){
+								if(item.city == (vm.keyword)){
+									vm.cityId = item.id;
+									window.location.href = '/pages/future.html?id='+item.id+"&address="+item.city;
+								}
+					        });
+
+		            		this.keyword = "";
+
+		            	}
+	        		}
+	        		
+	        	},
+
+
+	        	keyword:function(){
+	        		$( "#input" ).autocomplete({
+				      source: vm.availableTags
+				    });
+	        	},
+	        }
+	    });
+
+	    $("#button").click(function(){
+    		vm.searchClick = true;
+  		});
+	}
+	});
+
+		
+
+	</script>
+	}
+
+</head>
+<body>
+<div>
+	<canvas id="canvas" width="1280" height="1024"> 您的浏览器不支持canvas标签，请您更换浏览器 </canvas>
+<script src="/js/word.js"></script>
+<p id="offscreen-text" class="offscreen-text"></p>
+<p id="text" class="text"></p>
+<!--<svg id="svg" > </svg>-->
+
+<div id="d" class="webdesigntuts-workshop"> <span>
+  <input class="input" id="input" v-model="keyword" placeholder="中/英文"/>
+  <button id="button">搜索</button>
+  </span> </div>
+
+
+
+<script  src='/js/index.js'></script>
+</div>
+</body>
+</html>

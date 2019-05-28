@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>首页</title>
+	<!-- Meta tag Keywords -->
+
+	<link rel="shortcut icon" href="/images/tree.ico" type="image/x-icon" /> 
+
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta charset="utf-8">
+	<meta name="keywords" content="" />
+	<link rel="stylesheet" href="/css/bootstrap.css"> <!-- Bootstrap-Core-CSS -->
+	<link rel="stylesheet" href="/css/style1.css" type="text/css" media="all" /> <!-- Style-CSS --> 
+	<link rel="stylesheet" href="/css/fontawesome-all.css"> <!-- Font-Awesome-Icons-CSS -->
+	<!-- //css files -->
+	<!--web font-->
+	<link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900" rel="stylesheet">
+	<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+	<script src="http://pv.sohu.com/cityjson?ie=utf-8"></script>
+	<script src="/js/config.js" type="text/javascript"></script>
+	<script src="/js/axios.min.js"></script>
+	<script src="/js/common.js"></script>
+	<script src="/files/_city.json"></script>
+	<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+	<script src="/js/layer.js"></script>
+	 
+	<script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="http://jqueryui.com/resources/demos/style.css">
+
+	<script src="/js/jquery.autocomplete.js"></script>
+	<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+	<script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+
+    <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=TZBOxnMwwya7srplPr8Oqk3qgQaREf7Z"></script>
+    <script src="/js/loading.js"></script>
+    <link rel="stylesheet" type="text/css" href="/css/loading.css" media="all"/>
+
+	<script type="text/javascript">
+	
+	$(document).ready(function (){
+
+		
+
+	 	var host = config.devPro.host;
+	 	var port = config.devPro.port;
+
+		// 基于准备好的dom，初始化echarts实例
+
+
+	 	window.onload = function(){
+	    var vm = new Vue({
+	        el:'#content',
+	        data:{
+	        	city:"广州市",
+	        	province:"广东省",
+	        	address:"广东省广州市",
+	        	ip:returnCitySN["cip"],
+	        	ak:'TZBOxnMwwya7srplPr8Oqk3qgQaREf7Z',
+	        	temp:null,
+	        	pm2_5:null,
+	        	warn:null,
+	        	shidu:null,
+	        	jiangyu:null,
+	        	chuxing:null,
+	        	fengsu:null,
+	        	quality:null,
+	        	notice:null,
+	        },
+	        created: function () {
+	        	//跨域是浏览器的安全策略.
+	 			//jQuery 解决的方式.
+	 			$.ajax({
+ 					url:"http://api.map.baidu.com/location/ip",
+ 					type:"get",
+ 					data:{
+ 						  ip:returnCitySN["cip"],
+ 						  ak:'TZBOxnMwwya7srplPr8Oqk3qgQaREf7Z'
+ 					},
+ 					/*预期服务器端返回的数据类型，假设现在跨域了，就改成jsonp 就可以了 */
+	 				dataType:"jsonp",
+	 				success:function(data){
+	 					console.log(data);
+	 					vm.address = data.content.address;
+	 				//	console.log(weatherData)
+	 				}
+	 			})
+
+	 			var cityId = "101280101";
+
+	 			for (var i = citiesMap.length - 1; i >= 0; i--) {
+	 				dataDict = citiesMap[i];
+	 				if (this.address.indexOf(dataDict['city_name']) != -1) {
+	 					cityId = dataDict['city_code'];
+	 					break;
+	 				}
+	 			}
+	        	axios({
+					url:'http://t.weather.sojson.com/api/weather/city/'+cityId,
+					method: 'get',
+					
+				})
+				.then(response=>{
+					var data = response.data.data;
+					vm.warn = data.ganmao;
+					vm.pm2_5 = data.pm25;
+					vm.shidu = data.shidu;
+					vm.temp = data.wendu;
+					vm.quality = data.quality;
+					vm.temp = data.forecast[0].low.replace("低温","") + "~" + data.forecast[0].high.replace("高温","");
+					vm.notice = data.forecast[0].notice;
+					vm.fengsu = data.forecast[0].fl+"  "+data.forecast[0].fx;
+				})
+	        	
+
+	        	
+       		},
+
+	        methods:{
+	            showSearch:function(){
+	            	
+	            },
+	        },
+
+	        watch: {
+	        	// 监听地图点击
+	            
+	        }
+	    });
+	}
+
+	})
+
+ 	
+
+	</script>
+	<!--//web font-->
+    <style>
+        .banner{
+            position: relative;
+        }
+        .banner h1{
+            font-size:60px;
+            position: absolute;
+            top: 190px;
+            left: 150px;
+            color:bisque;
+        }
+        .banner ul{
+            list-style: none;
+            font-size:60px;
+            position: absolute;
+            top: 255px;
+            left: 150px;
+            color:bisque;
+        }
+        .banner h2{
+            font-size:55px;
+            position: absolute;
+            top: 430px;
+            left: 150px;
+            color:bisque;
+        }
+    </style>
+</head>
+<body>
+	<div id="loading" class="lds-css ng-scope" style="width:100%;height:100%;"><div style="width:100%;height:100%;left:48%;top:40%;" class="lds-cube"><div></div><div></div><div></div><div></div></div></div>
+<header>	
+	<nav class="mnu">
+		<div class="container">
+            <div class="logo" id="logo">
+                <h1><a href="/index.html">全国主要城市空气质量</a></h1>
+            </div>
+				<label for="drop" class="toggle"><span class="fa fa-bars"></span></label>
+                <input type="checkbox" id="drop">
+                    <ul class="menu mt-1">
+                        <li class="mr-lg-4 mr-3 active"><a href="/index.html">首页</a></li>
+						<li class="mr-lg-4 mr-3"><a href="pages/cities.html" class="scroll">实时监控</a></li>
+                        <li class="mr-lg-4 mr-3"><a href="/pages/history.html" class="scroll">历史分析</a></li>
+						<li class="mr-lg-4 mr-3"><a href="/pages/future.html" class="scroll">未来预测</a></li>
+                        <li class="mr-lg-4 mr-3"><a href="/pages/rank.html" class="scroll">污染排行</a></li>
+                        <li class="mr-lg-4 mr-3"><a href="/pages/solution.html" class="scroll">解题</a></li>
+                    </ul>
+		</div>
+    </nav>
+</header>
+<div id="content">
+	
+<!-- banner -->
+<div class="banner">
+    <h1 id="cityName">{{address}}</h1>
+	
+    <ul>
+    <li>{{temp}}</li>
+    <li>PM2.5浓度</li></ul>
+    <h2>{{pm2_5}}微克/立方米</h2>
+    
+</div>
+<!-- //banner -->	
+ <!-- what we do -->
+	 <section class="wedo py-5" id="services">
+		<div class="container py-lg-5">
+			<div class="w3l_head1">
+				<h4 class="heading text-center"> 指数：{{quality}}</h4>
+				<p class="subs1 mt-4 text-center mx-auto">温馨提示：{{warn}}</p>
+			</div>
+			<div class="row about-info-grids text-center py-lg-5 py-3 mt-3">
+							<div class="col-md-4 about-info about-info1">
+								<span class="fa fa-tint"></span>
+								<h4>空气湿度</h4>
+								<p>{{shidu}}</p>
+							</div>
+							<div class="col-md-4 about-info about-info2">
+								<span class="fa fa-leaf"></span>
+								<h4>出行指数</h4>
+								<p>{{notice}}</p>
+							</div>
+							<div class="col-md-4 about-info about-info3">
+								<span class="fa fa-pagelines"></span>
+								<h4>风速指数</h4>
+								<p>{{fengsu}}</p>
+							</div>
+					</div>
+	 </div>
+	</section>
+
+</div>
+</body>
+</html>
